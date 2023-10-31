@@ -23,3 +23,14 @@ def print_general_statistics(df):
     print(df.dtypes)
     print("\nStatistics:\n")
     print(df.describe())  # Add your code inside the brackets
+
+
+
+
+
+if __name__ == '__main__':
+    # Use Pathlib.Path to read a file using the location relative to this file
+    raw_data_file = pathlib.Path(__file__).parent.joinpath('accelerometer+gyro+mobile+phone+dataset', 'accelerometer_gyro_mobile_phone_dataset.csv')
+    # Call the create_dataframe function, passing the csv file as argument
+    df_raw = pd.read_csv(raw_data_file)
+    print_general_statistics(df_raw)
