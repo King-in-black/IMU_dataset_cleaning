@@ -63,6 +63,21 @@ def time_stamp_format_convert(df):
     print(df.loc[20928, 'timestamp_datetype'])
     df_return=df
     return(df_return)
+def breaking_point_detection(df):
+    ''' detection the breaking point to break the continuity of time_stamp
+        give an output of list of index with breaking points
+        Args: df : input data frame
+        Return: list_of_breaking_points: the list of the index of  breaking point
+        '''
+    list_of_breaking_points=[]
+    for i in range(df.shape[0]):
+        if i !=(df.shape[0]-1):
+            difference=df.loc[(i+1),'timestamp_datetype']-df.loc[i,'timestamp_datetype']
+            if difference.total_seconds()==(1/10):
+                pass
+            else:list_of_breaking_points.append(i+1)
+    print(list_of_breaking_points)
+    return (list_of_breaking_points)
 
 
 if __name__ == '__main__':
