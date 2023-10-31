@@ -8,7 +8,6 @@ def print_general_statistics(df):
         print first 5 rows and all the columns of the data frame
         demonstrate number of row and column of the data frame
         print the data types; general statics information of the data frame
-
     Args:
         df: The data frame imported.
     """
@@ -42,7 +41,28 @@ def null_data_disposal(df):
     else:
         print('the dataframe has no null value\n null data preprocessing finish')
         return (df)
-
+def time_stamp_format_convert(df):
+    """  the function is used to convert the ' timestamp'   to datetype data
+    also, it converts all the timestamp to (Minutes:seconds.microseconds) format.
+         Args: df:the dataframe used to disposal
+               invalid_times: a new dataframe with invalid timestamp column
+         Return:df_return: the dataframe after timestamp format convert from string to datetyoe.
+    """
+    print(df.loc[20928,'timestamp'])
+    df.loc[20928,'timestamp']='05:48.0'
+    # time data "6/25/2022 14:05" doesn't match format "M:%s%f". at position 20928. I manually change the format of time
+    # based on continuously distribution of time
+    df['timestamp_datetype'] = pd.to_datetime(df['timestamp'], format='%M:%S.%f', errors='coerce')
+    invalid_times = df[df['timestamp_datetype'].isna()]
+    if invalid_times.empty:
+        print('all the timestamp_datetype are valid ')
+    else:
+         print('\nsome of timestamp_datetype are invalid\n')
+         print(' here are the invalid formats')
+         print(invalid_times)
+    print(df.loc[20928, 'timestamp_datetype'])
+    df_return=df
+    return(df_return)
 
 
 if __name__ == '__main__':
