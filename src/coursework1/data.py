@@ -63,14 +63,42 @@ def time_stamp_format_convert(df):
     print(df.loc[20928, 'timestamp_datetype'])
     df_return=df
     return(df_return)
+def breaking_point_detection(df):
+    ''' detection the breaking point to break the continuity of time_stamp
+        give an output of list of index with breaking points
+        Args: df : input data frame
+        Return: list_of_breaking_points: the list of the index of  breaking point
+        '''
+    list_of_breaking_points=[]
+    breaking_point_index=[]
+    for i in range(df.shape[0]):
+        if i !=(df.shape[0]-1):
+            difference=df.loc[(i+1),'timestamp_datetype']-df.loc[i,'timestamp_datetype']
+            if difference.total_seconds()==(1/10):
+                pass
+            else:
+                  breaking_point_index.append(i+1)
+                  list_of_difference.append(difference.total_seconds())
+
+    print(list_of_difference)
+    print(breaking_point_index)
+    return (breaking_point_index,list_of_difference)
+def interpolition(breaking_point_index,list_of_difference,df):
+    for i in len(list_of_difference):
+        if list_of_difference[i]==0.2:
+            df1=df.iloc[:,breaking_point_index[i]]
+            df2=df.iloc[breaking_point_index[i],:]
+            new_row=pd.DataFrame({})
+
 
 
 if __name__ == '__main__':
-    df_raw = pd.read_csv(dataset.csv)
+
+    df_raw = pd.read_csv('dataset.csv')
     print_general_statistics(df_raw)
     print_general_statistics(df_raw)
     df_after_null_preprocess = null_data_disposal(df_raw)
     df_after_time_stamp_convert = time_stamp_format_convert(df_after_null_preprocess)
     print_general_statistics(df_after_time_stamp_convert)
     print(df_after_time_stamp_convert.loc[20928, 'timestamp'])
-    print(breaking_point_detection(df_after_time_stamp_convert))
+    list_of_breaking_points,list_of_difference=breaking_point_detection(df_after_time_stamp_convert)
