@@ -24,13 +24,33 @@ def print_general_statistics(df):
     print("\nStatistics:\n")
     print(df.describe())  # Add your code inside the brackets
 
+def null_data_disposal(df):
+    """  if the dataset has null values, the function will delete the row in dataframe with
+    null value. The function will return the dataframe without null.
 
+        Args:
+            df: The dataframe prepared to delete null values
+        Return:
+            df: The dataframe after deleting null values
+    """
+    result=df.isnull().any().any()
+    if result == True:
+        print('the dataframe has null value')
+        print('the null row will be deleted\n null data preprocessing finish')
+        df =df.dropna()
+        return (df)
+    else:
+        print('the dataframe has no null value\n null data preprocessing finish')
+        return (df)
 
 
 
 if __name__ == '__main__':
-    # Use Pathlib.Path to read a file using the location relative to this file
-    raw_data_file = pathlib.Path(__file__).parent.joinpath('accelerometer+gyro+mobile+phone+dataset', 'accelerometer_gyro_mobile_phone_dataset.csv')
-    # Call the create_dataframe function, passing the csv file as argument
-    df_raw = pd.read_csv(raw_data_file)
+    df_raw = pd.read_csv(dataset.csv)
     print_general_statistics(df_raw)
+    print_general_statistics(df_raw)
+    df_after_null_preprocess = null_data_disposal(df_raw)
+    df_after_time_stamp_convert = time_stamp_format_convert(df_after_null_preprocess)
+    print_general_statistics(df_after_time_stamp_convert)
+    print(df_after_time_stamp_convert.loc[20928, 'timestamp'])
+    print(breaking_point_detection(df_after_time_stamp_convert))
