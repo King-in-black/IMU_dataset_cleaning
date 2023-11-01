@@ -2,7 +2,8 @@
 import pandas as pd
 import pathlib
 import time
-from datetime import datetime
+import math
+from datetime import datetime,timedelta
 def print_general_statistics(df):
     """ print the general information about the dataframe;
         print first 5 rows and all the columns of the data frame
@@ -14,7 +15,7 @@ def print_general_statistics(df):
     pd.set_option('display.max_columns', None)# set all the columns visible in the terminal printing
     pd.set_option('display.width', None)
     print("\nthe first 5 rows of dataframe :\n")
-    print(df.head(5))
+    print(df.head(12))
     print("\nThe Rows and Columns number:\n")
     print("\nRow Number :" + str(df.shape[0]))
     print("\nColumn Number :"+str(df.shape[1]))
@@ -69,7 +70,7 @@ def breaking_point_detection(df):
         Args: df : input data frame
         Return: list_of_breaking_points: the list of the index of  breaking point
         '''
-    list_of_breaking_points=[]
+    list_of_difference=[]
     breaking_point_index=[]
     for i in range(df.shape[0]):
         if i !=(df.shape[0]-1):
@@ -84,12 +85,22 @@ def breaking_point_detection(df):
     print(breaking_point_index)
     return (breaking_point_index,list_of_difference)
 def interpolition(breaking_point_index,list_of_difference,df):
-    for i in len(list_of_difference):
+    number_of_interpolition_point=0
+    for i in range(len(list_of_difference)):
         if list_of_difference[i]==0.2:
-            df1=df.iloc[:,breaking_point_index[i]]
-            df2=df.iloc[breaking_point_index[i],:]
-            new_row=pd.DataFrame({})
-
+            df1=df.iloc[:(number_of_interpolition_point+breaking_point_index[i]),:]
+            df2=df.iloc[(number_of_interpolition_point+breaking_point_index[i]):,:]
+            # create a new row to make time_stamp continuously
+            new_row=pd.DataFrame({'accX':[math.nan],'accY':[math.nan],'accZ':[math.nan],'gyroX':[math.nan],'gyroY':[math.nan],'gyroZ':[math.nan],'timestamp':[math.nan],'Activity':[math.nan],'timestamp_datetype':[df.loc[breaking_point_index[i]+number_of_interpolition_point,'timestamp_datetype']-timedelta(seconds=0.1)]})
+            new_row['timestamp'] = new_row['timestamp_datetype'].dt.strftime('%M:%S.%f')
+            df = pd.concat([df1, new_row, df2]).reset_index(drop=True)
+            number_of_interpolition_point+=1
+        else:
+            pass
+    for col in ['accX', 'accY', 'accZ', 'gyroX', 'gyroY', 'gyroZ','Activity']:
+        df[col]=df[col].interpolate(method='pchip')
+    return df
+#def timestamp_error_detection():
 
 
 if __name__ == '__main__':
@@ -102,3 +113,7 @@ if __name__ == '__main__':
     print_general_statistics(df_after_time_stamp_convert)
     print(df_after_time_stamp_convert.loc[20928, 'timestamp'])
     list_of_breaking_points,list_of_difference=breaking_point_detection(df_after_time_stamp_convert)
+    df_interpolation=interpolition(list_of_breaking_points,list_of_difference,df_after_time_stamp_convert)
+    a,b=breaking_point_detection(df_interpolation)
+    print_general_statistics(df_interpolation)
+    df_interpolation.to_csv('output_file.csv', index=True)
