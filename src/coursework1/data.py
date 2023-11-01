@@ -23,7 +23,6 @@ def print_general_statistics(df):
     print(df.dtypes)
     print("\nStatistics:\n")
     print(df.describe())  # Add your code inside the brackets
-
 def null_data_disposal(df):
     """  if the dataset has null values, the function will delete the row in dataframe with
     null value. The function will return the dataframe without null.
@@ -102,21 +101,49 @@ def interpolation(breaking_point_index,list_of_difference,df):
     '''
     # create the number of points implementing interpolation
     number_of_interpolation_point=0
+    list_of_interpolation_index=[]
     for i in range(len(list_of_difference)):
         if list_of_difference[i]==0.2:
             df1=df.iloc[:(number_of_interpolation_point+breaking_point_index[i]),:]
             df2=df.iloc[(number_of_interpolation_point+breaking_point_index[i]):,:]
             # create a new row to make time_stamp continuously. And fill with nan for following interpolation
-            new_row=pd.DataFrame({'accX':[math.nan],'accY':[math.nan],'accZ':[math.nan],'gyroX':[math.nan],'gyroY':[math.nan],'gyroZ':[math.nan],'timestamp':[math.nan],'Activity':[math.nan],'timestamp_datetype':[df.loc[breaking_point_index[i]+number_of_interpolition_point,'timestamp_datetype']-timedelta(seconds=0.1)]})
+            new_row=pd.DataFrame({'accX':[math.nan],'accY':[math.nan],'accZ':[math.nan],'gyroX':[math.nan],'gyroY':[math.nan],'gyroZ':[math.nan],'timestamp':[math.nan],'Activity':[math.nan],'timestamp_datetype':[df.loc[breaking_point_index[i]+number_of_interpolation_point,'timestamp_datetype']-timedelta(seconds=0.1)]})
             new_row['timestamp'] = new_row['timestamp_datetype'].dt.strftime('%M:%S.%f')
             df = pd.concat([df1, new_row, df2]).reset_index(drop=True)
             number_of_interpolation_point+=1
+            list_of_interpolation_index.append(breaking_point_index[i]+number_of_interpolation_point)
         else:
             pass
     for col in ['accX', 'accY', 'accZ', 'gyroX', 'gyroY', 'gyroZ','Activity']:
         df[col]=df[col].interpolate(method='pchip')
+    print('the number of data points interpolated :'+str(number_of_interpolation_point))
+    print('the index of data points added')
+    print(list_of_interpolation_index)
+    df.reset_index(drop=True, inplace=True)
     return df
-#def timestamp_error_detection():
+
+
+def timestamp_delete(breaking_point_index,list_of_difference,df):
+    number_of_delete_point = 0
+    list_of_index=[]
+    for i in range(len(list_of_difference)):
+        if (list_of_difference[i]<0.1 and list_of_difference[i] >=0):
+            list_of_index.append(breaking_point_index[i])
+            df=df.drop(index=breaking_point_index[i])
+            number_of_delete_point+=1
+    print('the number of repetitive data points deleted :' + str(number_of_delete_point))
+    print('the index of data points deleted')
+    print(list_of_index)
+    df.reset_index(drop=True, inplace=True)
+    return(df)
+# 时间要是连续的 activities 要是连续的（1-0）创建 different frame
+#def outlier_disposal():
+
+#def filter():
+
+#def different_class_analysis():
+
+
 
 
 if __name__ == '__main__':
@@ -130,6 +157,7 @@ if __name__ == '__main__':
     print(df_after_time_stamp_convert.loc[20928, 'timestamp'])
     list_of_breaking_points,list_of_difference=breaking_point_detection(df_after_time_stamp_convert)
     df_interpolation=interpolation(list_of_breaking_points,list_of_difference,df_after_time_stamp_convert)
-    a,b=breaking_point_detection(df_interpolation)
-    print_general_statistics(df_interpolation)
-    df_interpolation.to_csv('output_file.csv', index=True)
+    list_of_breaking_points,list_of_difference=breaking_point_detection(df_interpolation)
+    df_after_delete=timestamp_repeat_delete(list_of_breaking_points,list_of_difference,df_interpolation)
+    list_of_breaking_points, list_of_difference = breaking_point_detection(df_after_delete)
+    df_after_delete.to_csv('output_file.csv', index=True)
