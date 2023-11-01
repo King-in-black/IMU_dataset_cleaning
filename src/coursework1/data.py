@@ -69,7 +69,7 @@ def breaking_point_detection(df):
         give an output of list of index with breaking points
         Args: df : input data frame
         Return: list_of_breaking_points: the list of the index of  breaking point
-        '''
+    '''
     list_of_difference=[]
     breaking_point_index=[]
     for i in range(df.shape[0]):
@@ -84,17 +84,33 @@ def breaking_point_detection(df):
     print(list_of_difference)
     print(breaking_point_index)
     return (breaking_point_index,list_of_difference)
-def interpolition(breaking_point_index,list_of_difference,df):
-    number_of_interpolition_point=0
+def interpolation(breaking_point_index,list_of_difference,df):
+    '''
+        some data points are not continuous and they are not breaking points on timestamp.
+        the data of sensor is delayed sometimes.
+        so a function of interpolation is applied to detect whether difference of timestamp between 2 points
+        is 0.2 second（normally one second) In this case, I interpolate a new piece of data with 0.1s difference
+        between 2 points.
+
+        Args:
+        breaking_point_index (list): indices where breaking points locate
+        list_of_difference (list): time differences between consecutive points
+        df (pd.DataFrame): input dataframe with discontinuously timeseries
+
+        Returns:
+        pd.DataFrame: Dataframe with interpolated rows added where needed.
+    '''
+    # create the number of points implementing interpolation
+    number_of_interpolation_point=0
     for i in range(len(list_of_difference)):
         if list_of_difference[i]==0.2:
-            df1=df.iloc[:(number_of_interpolition_point+breaking_point_index[i]),:]
-            df2=df.iloc[(number_of_interpolition_point+breaking_point_index[i]):,:]
-            # create a new row to make time_stamp continuously
+            df1=df.iloc[:(number_of_interpolation_point+breaking_point_index[i]),:]
+            df2=df.iloc[(number_of_interpolation_point+breaking_point_index[i]):,:]
+            # create a new row to make time_stamp continuously. And fill with nan for following interpolation
             new_row=pd.DataFrame({'accX':[math.nan],'accY':[math.nan],'accZ':[math.nan],'gyroX':[math.nan],'gyroY':[math.nan],'gyroZ':[math.nan],'timestamp':[math.nan],'Activity':[math.nan],'timestamp_datetype':[df.loc[breaking_point_index[i]+number_of_interpolition_point,'timestamp_datetype']-timedelta(seconds=0.1)]})
             new_row['timestamp'] = new_row['timestamp_datetype'].dt.strftime('%M:%S.%f')
             df = pd.concat([df1, new_row, df2]).reset_index(drop=True)
-            number_of_interpolition_point+=1
+            number_of_interpolation_point+=1
         else:
             pass
     for col in ['accX', 'accY', 'accZ', 'gyroX', 'gyroY', 'gyroZ','Activity']:
@@ -113,7 +129,7 @@ if __name__ == '__main__':
     print_general_statistics(df_after_time_stamp_convert)
     print(df_after_time_stamp_convert.loc[20928, 'timestamp'])
     list_of_breaking_points,list_of_difference=breaking_point_detection(df_after_time_stamp_convert)
-    df_interpolation=interpolition(list_of_breaking_points,list_of_difference,df_after_time_stamp_convert)
+    df_interpolation=interpolation(list_of_breaking_points,list_of_difference,df_after_time_stamp_convert)
     a,b=breaking_point_detection(df_interpolation)
     print_general_statistics(df_interpolation)
     df_interpolation.to_csv('output_file.csv', index=True)
