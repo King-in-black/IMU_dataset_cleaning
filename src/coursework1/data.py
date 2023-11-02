@@ -161,10 +161,26 @@ def timestamp_delete(breaking_point_index,list_of_difference,df):
     print(list_of_index)
     df.reset_index(drop=True, inplace=True)
     return(df)
-# 时间要是连续的 activities 要是连续的（1-0）创建 different frame
-#def outlier_disposal():
+ #def dataframe_list_creator():
+    list_of_dataframe=[]
 
-#def filter():
+# 时间要是连续的 activities 要是连续的（1-0）创建 different frame
+def outlier_disposal(df):
+
+    window_size = 5
+    threshold = 2.0
+    outliers = []
+    for column in df.columns:
+        if column!= 'Activity' or 'timestamp ' or 'timestamp_datetype':
+           rolling_mean = df[column].rolling(window=window_size).mean()
+           rolling_standard_deviation = df[column].rolling(window=window_size).std()
+           outlier_condition = ((df[column] < (rolling_mean - threshold * rolling_standard_deviation)
+           or  df[column] > (rolling_mean + threshold * rolling_standard_deviation)))
+           for i in df.shape[0]df[i,column]
+        outliers[column] = df[outlier_condition]
+
+    print(outliers)
+
 
 #def different_class_analysis():
 
