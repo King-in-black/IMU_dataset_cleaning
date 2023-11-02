@@ -1,9 +1,11 @@
 # Data preparation and understanding code
 import pandas as pd
+import warnings
 import pathlib
 import time
 import math
 from datetime import datetime,timedelta
+warnings.simplefilter(action='ignore', category=FutureWarning)
 def print_general_statistics(df):
     """ print the general information about the dataframe;
         print first 5 rows and all the columns of the data frame
@@ -103,17 +105,40 @@ def interpolation(breaking_point_index,list_of_difference,df):
     number_of_interpolation_point=0
     list_of_interpolation_index=[]
     for i in range(len(list_of_difference)):
-        if list_of_difference[i]==0.2:
-            df1=df.iloc[:(number_of_interpolation_point+breaking_point_index[i]),:]
-            df2=df.iloc[(number_of_interpolation_point+breaking_point_index[i]):,:]
+
+        if list_of_difference[i] == 0.2:
+            df1 = df.iloc[:(number_of_interpolation_point+breaking_point_index[i]),:]
+            df2 = df.iloc[(number_of_interpolation_point+breaking_point_index[i]):,:]
             # create a new row to make time_stamp continuously. And fill with nan for following interpolation
-            new_row=pd.DataFrame({'accX':[math.nan],'accY':[math.nan],'accZ':[math.nan],'gyroX':[math.nan],'gyroY':[math.nan],'gyroZ':[math.nan],'timestamp':[math.nan],'Activity':[math.nan],'timestamp_datetype':[df.loc[breaking_point_index[i]+number_of_interpolation_point,'timestamp_datetype']-timedelta(seconds=0.1)]})
+            new_row = pd.DataFrame({'accX': [math.nan], 'accY':[math.nan], 'accZ':[math.nan], 'gyroX':[math.nan],
+            'gyroY':[math.nan], 'gyroZ':[math.nan],'timestamp':[math.nan],'Activity':[math.nan],
+            'timestamp_datetype':[df.loc[breaking_point_index[i]+number_of_interpolation_point,'timestamp_datetype']
+                                  -timedelta(seconds=0.1)]})
             new_row['timestamp'] = new_row['timestamp_datetype'].dt.strftime('%M:%S.%f')
             df = pd.concat([df1, new_row, df2]).reset_index(drop=True)
-            number_of_interpolation_point+=1
+            number_of_interpolation_point += 1
             list_of_interpolation_index.append(breaking_point_index[i]+number_of_interpolation_point)
-        else:
-            pass
+
+        elif ( list_of_difference[i] == 0.4):
+            print(breaking_point_index[i])
+            df1 = df.iloc[:(number_of_interpolation_point+breaking_point_index[i]),:]
+            df2 = df.iloc[(number_of_interpolation_point+breaking_point_index[i]):,:]
+            number_of_new_rows = 4
+            for j in range(number_of_new_rows):
+                new_row = pd.DataFrame({'accX': [math.nan], 'accY': [math.nan], 'accZ': [math.nan], 'gyroX': [math.nan],
+                'gyroY': [math.nan], 'gyroZ': [math.nan], 'timestamp': [math.nan],'Activity': [math.nan],
+                'timestamp_datetype': [df.loc[breaking_point_index[i-1] + number_of_interpolation_point,
+                'timestamp_datetype'] + (j+1)*timedelta(seconds=0.1)]})
+                new_row['timestamp'] = new_row['timestamp_datetype'].dt.strftime('%M:%S.%f')
+                df1=df1.append(new_row,ignore_index=True)
+                number_of_interpolation_point += 1
+                list_of_interpolation_index.append(breaking_point_index[i] + number_of_interpolation_point)
+                df = pd.concat([df1,df2]).reset_index(drop=True)
+
+
+
+
+
     for col in ['accX', 'accY', 'accZ', 'gyroX', 'gyroY', 'gyroZ','Activity']:
         df[col]=df[col].interpolate(method='pchip')
     print('the number of data points interpolated :'+str(number_of_interpolation_point))
@@ -156,8 +181,8 @@ if __name__ == '__main__':
     print_general_statistics(df_after_time_stamp_convert)
     print(df_after_time_stamp_convert.loc[20928, 'timestamp'])
     list_of_breaking_points,list_of_difference=breaking_point_detection(df_after_time_stamp_convert)
-    df_interpolation=interpolation(list_of_breaking_points,list_of_difference,df_after_time_stamp_convert)
-    list_of_breaking_points,list_of_difference=breaking_point_detection(df_interpolation)
-    df_after_delete=timestamp_delete(list_of_breaking_points,list_of_difference,df_interpolation)
+    df_after_delete=timestamp_delete(list_of_breaking_points,list_of_difference,df_after_time_stamp_convert)
     list_of_breaking_points, list_of_difference = breaking_point_detection(df_after_delete)
-    df_after_delete.to_csv('output_file.csv', index=True)
+    df_interpolation=interpolation(list_of_breaking_points,list_of_difference,df_after_delete)
+    list_of_breaking_points,list_of_difference=breaking_point_detection(df_interpolation)
+    df_interpolation.to_csv('output_file.csv', index=True)
