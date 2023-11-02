@@ -127,7 +127,7 @@ def timestamp_delete(breaking_point_index,list_of_difference,df):
     number_of_delete_point = 0
     list_of_index=[]
     for i in range(len(list_of_difference)):
-        if (list_of_difference[i]<0.1 and list_of_difference[i] >=0):
+        if (list_of_difference[i]<0.1 and list_of_difference[i] >=-0.1):
             list_of_index.append(breaking_point_index[i])
             df=df.drop(index=breaking_point_index[i])
             number_of_delete_point+=1
