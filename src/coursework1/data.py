@@ -161,8 +161,8 @@ def timestamp_delete(breaking_point_index,list_of_difference,df):
 
 # 时间要是连续的 activities 要是连续的（1-0）创建 different frame
 def outlier_disposal(df):
-    window_size = 4
-    threshold = 1.5
+    window_size = 30
+    threshold = 3
     outliers = {}
     for column in df.columns:
         if column not in ['Activity', 'timestamp', 'timestamp_datetype']:
