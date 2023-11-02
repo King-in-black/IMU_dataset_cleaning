@@ -134,11 +134,6 @@ def interpolation(breaking_point_index,list_of_difference,df):
                 number_of_interpolation_point += 1
                 list_of_interpolation_index.append(breaking_point_index[i] + number_of_interpolation_point)
                 df = pd.concat([df1,df2]).reset_index(drop=True)
-
-
-
-
-
     for col in ['accX', 'accY', 'accZ', 'gyroX', 'gyroY', 'gyroZ','Activity']:
         df[col]=df[col].interpolate(method='pchip')
     print('the number of data points interpolated :'+str(number_of_interpolation_point))
@@ -166,18 +161,17 @@ def timestamp_delete(breaking_point_index,list_of_difference,df):
 
 # 时间要是连续的 activities 要是连续的（1-0）创建 different frame
 def outlier_disposal(df):
-
     window_size = 5
     threshold = 2.0
-    outliers = []
+    outliers = {}
     for column in df.columns:
-        if column!= 'Activity' or 'timestamp ' or 'timestamp_datetype':
-           rolling_mean = df[column].rolling(window=window_size).mean()
-           rolling_standard_deviation = df[column].rolling(window=window_size).std()
-           outlier_condition = ((df[column] < (rolling_mean - threshold * rolling_standard_deviation)
-           or  df[column] > (rolling_mean + threshold * rolling_standard_deviation)))
-           for i in df.shape[0]df[i,column]
-        outliers[column] = df[outlier_condition]
+        if column not in ['Activity', 'timestamp', 'timestamp_datetype']:
+           rolling_mean = df[column].rolling(window=window_size,min_periods=0).mean()
+           rolling_standard_deviation = df[column].rolling(window=window_size,min_periods=0).std()
+           upper_bound=df[column] < (rolling_mean - threshold * rolling_standard_deviation)
+           lower_bound=df[column] > (rolling_mean + threshold * rolling_standard_deviation)
+           outlier_condition = ( | df[column] > (rolling_mean + threshold * rolling_standard_deviation))
+           outliers[column] = df[outlier_condition]
 
     print(outliers)
 
@@ -202,3 +196,4 @@ if __name__ == '__main__':
     df_interpolation=interpolation(list_of_breaking_points,list_of_difference,df_after_delete)
     list_of_breaking_points,list_of_difference=breaking_point_detection(df_interpolation)
     df_interpolation.to_csv('output_file.csv', index=True)
+    outlier_disposal(df_interpolation)
