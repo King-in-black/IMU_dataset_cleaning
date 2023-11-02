@@ -158,6 +158,6 @@ if __name__ == '__main__':
     list_of_breaking_points,list_of_difference=breaking_point_detection(df_after_time_stamp_convert)
     df_interpolation=interpolation(list_of_breaking_points,list_of_difference,df_after_time_stamp_convert)
     list_of_breaking_points,list_of_difference=breaking_point_detection(df_interpolation)
-    df_after_delete=timestamp_repeat_delete(list_of_breaking_points,list_of_difference,df_interpolation)
+    df_after_delete=timestamp_delete(list_of_breaking_points,list_of_difference,df_interpolation)
     list_of_breaking_points, list_of_difference = breaking_point_detection(df_after_delete)
     df_after_delete.to_csv('output_file.csv', index=True)
