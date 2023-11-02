@@ -86,7 +86,7 @@ def breaking_point_detection(df):
     print(breaking_point_index)
     return (breaking_point_index,list_of_difference)
 def interpolation(breaking_point_index,list_of_difference,df):
-    '''
+    '''1
         some data points are not continuous and they are not breaking points on timestamp.
         the data of sensor is delayed sometimes.
         so a function of interpolation is applied to detect whether difference of timestamp between 2 points
