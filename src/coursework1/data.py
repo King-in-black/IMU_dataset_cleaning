@@ -155,12 +155,8 @@ def timestamp_delete(breaking_point_index,list_of_difference,df):
     print(list_of_index)
     df.reset_index(drop=True, inplace=True)
     return(df)
- #def dataframe_list_creator():
-    list_of_dataframe=[]
-
-# 时间要是连续的 activities 要是连续的（1-0）创建 different frame
 def outlier_disposal(df):
-    window_size = 5
+    window_size = 30
     threshold = 3
     outliers = {}
     for column in df.columns:
@@ -180,7 +176,6 @@ def different_activity_frame_division(df):
 
 def statics_hisdiagram(df):
     plt.figure()
-
     for column in df:
         if column not in ['Activity', 'timestamp', 'timestamp_datetype']:
             df[column].hist(bins=15, width=2)
@@ -188,12 +183,17 @@ def statics_hisdiagram(df):
             if column in ['accX','accY','accZ']:
                  plt.xlabel('m/s^(-2)')
             else:
-                plt.xlabel('')
+                plt.xlabel('radian per second')
             plt.ylabel('Frequency')
             plt.show()
 
 def statistics_boxplot(df):
-
+    df.boxplot(column=['accX', 'accY', 'accZ','gyroX','gyroY','gyroY'])
+    plt.show()
+def smoothing(df):
+    for column in df:
+        if column not in ['Activity', 'timestamp', 'timestamp_datetype']:
+            w
 
 
 if __name__ == '__main__':
@@ -216,3 +216,5 @@ if __name__ == '__main__':
     outlier_disposal(df_activity_1)
     statics_hisdiagram(df_activity_0)
     statics_hisdiagram(df_activity_1)
+    statistics_boxplot(df_activity_0)
+    statistics_boxplot(df_activity_1)
