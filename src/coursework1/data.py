@@ -190,11 +190,16 @@ def statics_hisdiagram(df):
 def statistics_boxplot(df):
     df.boxplot(column=['accX', 'accY', 'accZ','gyroX','gyroY','gyroY'])
     plt.show()
+
 def smoothing(df):
     for column in df:
         if column not in ['Activity', 'timestamp', 'timestamp_datetype']:
-            w
+            df[column]=df[column].ewm(alpha =0.5).mean()
+    return(df)
 
+def smoothing_all(df):
+    list_of_breaking_points, list_of_difference = breaking_point_detection(df)
+    if
 
 if __name__ == '__main__':
 
