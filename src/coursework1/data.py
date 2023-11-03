@@ -2,10 +2,8 @@
 import pandas as pd
 import warnings
 import matplotlib.pyplot as plt
-import pathlib
-import time
 import math
-from datetime import datetime,timedelta
+from datetime import timedelta
 warnings.simplefilter(action='ignore', category=FutureWarning)
 def print_general_statistics(df):
     """ print the general information about the dataframe;
