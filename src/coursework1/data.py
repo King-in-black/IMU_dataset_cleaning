@@ -6,6 +6,8 @@ import math
 from datetime import timedelta
 warnings.simplefilter(action='ignore', category=FutureWarning)
 def print_general_statistics(df):
+
+
     """ print the general information about the dataframe;
         print first 5 rows and all the columns of the data frame
         demonstrate number of row and column of the data frame
@@ -156,7 +158,7 @@ def timestamp_delete(breaking_point_index,list_of_difference,df):
     df.reset_index(drop=True, inplace=True)
     return(df)
 def outlier_disposal(df):
-    window_size = 30
+    window_size = 5
     threshold = 3
     outliers = {}
     for column in df.columns:
@@ -174,7 +176,7 @@ def different_activity_frame_division(df):
      df_1 = df[df['Activity'] == 1]
      return df_0, df_1
 
-def statics_hisdiagram(df):
+def statics_histdiagram(df):
     plt.figure()
     for column in df:
         if column not in ['Activity', 'timestamp', 'timestamp_datetype']:
@@ -196,10 +198,10 @@ def smoothing(df):
         if column not in ['Activity', 'timestamp', 'timestamp_datetype']:
             df[column]=df[column].ewm(alpha =0.5).mean()
     return(df)
-
+'''
 def smoothing_all(df):
     list_of_breaking_points, list_of_difference = breaking_point_detection(df)
-    if
+    '''
 
 if __name__ == '__main__':
 
