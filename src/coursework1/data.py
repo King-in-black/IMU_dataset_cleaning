@@ -1,6 +1,7 @@
 # Data preparation and understanding code
 import pandas as pd
 import warnings
+import matplotlib.pyplot as plt
 import pathlib
 import time
 import math
@@ -175,9 +176,25 @@ def outlier_disposal(df):
 
     print(outliers)
 def different_activity_frame_division(df):
-     df_0 = df[df['Activity'==0]]
-     df_1 = df[df['Activity'==1]]
-     return df_0,df_1
+     df_0 = df[df['Activity'] == 0]
+     df_1 = df[df['Activity'] == 1]
+     return df_0, df_1
+
+def statics_hisdiagram(df):
+    plt.figure()
+
+    for column in df:
+        if column not in ['Activity', 'timestamp', 'timestamp_datetype']:
+            df[column].hist(bins=15, width=2)
+            plt.title(column)
+            if column in ['accX','accY','accZ']:
+                 plt.xlabel('m/s^(-2)')
+            else:
+                plt.xlabel('')
+            plt.ylabel('Frequency')
+            plt.show()
+
+def statistics_boxplot(df):
 
 
 
@@ -196,4 +213,8 @@ if __name__ == '__main__':
     df_interpolation=interpolation(list_of_breaking_points,list_of_difference,df_after_delete)
     list_of_breaking_points,list_of_difference=breaking_point_detection(df_interpolation)
     df_interpolation.to_csv('output_file.csv', index=True)
-    outlier_disposal(df_interpolation)
+    df_activity_0,df_activity_1= different_activity_frame_division(df_interpolation)
+    outlier_disposal(df_activity_0)
+    outlier_disposal(df_activity_1)
+    statics_hisdiagram(df_activity_0)
+    statics_hisdiagram(df_activity_1)
