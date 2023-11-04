@@ -5,9 +5,8 @@ import matplotlib.pyplot as plt
 import math
 from datetime import timedelta
 warnings.simplefilter(action='ignore', category=FutureWarning)
+# ignore the waring from df.approve
 def print_general_statistics(df):
-
-
     """ print the general information about the dataframe;
         print first 5 rows and all the columns of the data frame
         demonstrate number of row and column of the data frame
@@ -198,10 +197,23 @@ def smoothing(df):
         if column not in ['Activity', 'timestamp', 'timestamp_datetype']:
             df[column]=df[column].ewm(alpha =0.5).mean()
     return(df)
-'''
+
 def smoothing_all(df):
-    list_of_breaking_points, list_of_difference = breaking_point_detection(df)
-    '''
+    list_of_breaking_points , list_of_difference = breaking_point_detection(df)
+    list_of_breaking_points.append(df.shape[0])
+    list_of_breaking_points.sort()
+    list_of_dataframe = []
+    for breaking_point in list_of_breaking_points:
+        if breaking_point != df.shape[0]:
+            start = 0
+            new_df = df.loc[start:(breaking_point-1)]
+            new_df = smoothing(new_df)
+            list_of_dataframe.append(new_df)
+            breaking_point = start
+    df_after_smoothing = pd.concat(list_of_dataframe)
+    return( df_after_smoothing )
+
+
 
 if __name__ == '__main__':
 
