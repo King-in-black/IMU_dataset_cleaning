@@ -4,28 +4,37 @@ import warnings
 import matplotlib.pyplot as plt
 import math
 from datetime import timedelta
-warnings.simplefilter(action='ignore', category=FutureWarning)
+
+warnings.simplefilter(action="ignore", category=FutureWarning)
+
+
+# ignore the waring from df.approve
 def print_general_statistics(df):
-    """ print the general information about the dataframe;
-        print first 5 rows and all the columns of the data frame
-        demonstrate number of row and column of the data frame
+    """
+        print the general information about the dataframe;
+        print first 5 rows and all the columns of the data frame;
+        demonstrate number of row and column of the data frame;
         print the data types; general statics information of the data frame
     Args:
         df: The data frame imported.
     """
-    pd.set_option('display.max_columns', None)# set all the columns visible in the terminal printing
-    pd.set_option('display.width', None)
+    pd.set_option(
+        "display.max_columns", None
+    )  # set all the columns visible in the terminal printing
+    pd.set_option("display.width", None)
     print("\nthe first 5 rows of dataframe :\n")
     print(df.head(12))
     print("\nThe Rows and Columns number:\n")
     print("\nRow Number :" + str(df.shape[0]))
-    print("\nColumn Number :"+str(df.shape[1]))
+    print("\nColumn Number :" + str(df.shape[1]))
     print("\nColumn data types:\n")
     print(df.dtypes)
     print("\nStatistics:\n")
     print(df.describe())  # Add your code inside the brackets
+
+
 def null_data_disposal(df):
-    """  if the dataset has null values, the function will delete the row in dataframe with
+    """if the dataset has null values, the function will delete the row in dataframe with
     null value. The function will return the dataframe without null.
 
         Args:
@@ -33,193 +42,238 @@ def null_data_disposal(df):
         Return:
             df: The dataframe after deleting null values
     """
-    result=df.isnull().any().any()
+    result = df.isnull().any().any()
+    # return the boolean value by detecting whether there is a null value
     if result == True:
-        print('the dataframe has null value')
-        print('the null row will be deleted\n null data preprocessing finish')
-        df =df.dropna()
-        return (df)
+        print("the dataframe has null value")
+        print("the null row will be interpolated later\n null data preprocessing finish")
+        return df
     else:
-        print('the dataframe has no null value\n null data preprocessing finish')
-        return (df)
+        print("the dataframe has no null value\n null data preprocessing finish")
+        return df
+
+
 def time_stamp_format_convert(df):
-    """  the function is used to convert the ' timestamp'   to datetype data
+    """
+    the function is used to convert the ' timestamp'   to datetype data
     also, it converts all the timestamp to (Minutes:seconds.microseconds) format.
          Args: df:the dataframe used to disposal
                invalid_times: a new dataframe with invalid timestamp column
-         Return:df_return: the dataframe after timestamp format convert from string to datetyoe.
+         Return:df_return: the dataframe after timestamp format convert from string to datetype.
+
     """
-    print(df.loc[20928,'timestamp'])
-    df.loc[20928,'timestamp']='05:48.0'
+    print("one of the dateformat is wrong, just correct directly without a function")
+    print(df.loc[20928, "timestamp"])
+    df.loc[20928, "timestamp"] = "05:48.0"
     # time data "6/25/2022 14:05" doesn't match format "M:%s%f". at position 20928. I manually change the format of time
     # based on continuously distribution of time
-    df['timestamp_datetype'] = pd.to_datetime(df['timestamp'], format='%M:%S.%f', errors='coerce')
-    invalid_times = df[df['timestamp_datetype'].isna()]
+    df["timestamp_datetype"] = pd.to_datetime(
+        df["timestamp"], format="%M:%S.%f", errors="coerce"
+    )
+    # add a column in the dataframe by converting string to datetype data
+    invalid_times = df[df["timestamp_datetype"].isna()]
+    # return to a Series of date whether the timestamp has invalid format , which could not change to %M:%S.%f"
     if invalid_times.empty:
-        print('all the timestamp_datetype are valid ')
+        print("all the timestamp_datetype are valid ")
     else:
-         print('\nsome of timestamp_datetype are invalid\n')
-         print(' here are the invalid formats')
-         print(invalid_times)
-    print(df.loc[20928, 'timestamp_datetype'])
-    df_return=df
-    return(df_return)
+        print("\nsome of timestamp_datetype are invalid\n")
+        print(" here are the invalid formats")
+        print(invalid_times)
+    print(df.loc[20928, "timestamp_datetype"])
+    df_return = df
+    return df_return
+
+
 def breaking_point_detection(df):
-    ''' detection the breaking point to break the continuity of time_stamp
-        give an output of list of index with breaking points
-        Args: df : input data frame
-        Return: list_of_breaking_points: the list of the index of  breaking point
-    '''
-    list_of_difference=[]
-    breaking_point_index=[]
+    """
+    The continuity of time series should be ensured for following analysis
+    detect the breaking point to break the continuity of time_stamp
+    give an output of list of index with breaking points
+    also calculate the difference in the time length of breaking points
+
+         Args:     df : input dataframe
+         Return:   breaking_point_index: the list of the index of breaking points locating in dataframe
+                   list_of_difference: the list of time difference between breaking points
+
+    """
+    list_of_difference = []
+    breaking_point_index = []
     for i in range(df.shape[0]):
-        if i !=(df.shape[0]-1):
-            difference=df.loc[(i+1),'timestamp_datetype']-df.loc[i,'timestamp_datetype']
-            if difference.total_seconds()==(1/10):
+        if i != (df.shape[0] - 1):
+            difference = (
+                df.loc[(i + 1), "timestamp_datetype"] - df.loc[i, "timestamp_datetype"]
+            )
+            # calculate the time delta, the normal difference between 2 time points is 0.1 second because the frequency
+            # of collection data of sensor is 10Hz
+            if difference.total_seconds() == (1 / 10):
                 pass
             else:
-                  breaking_point_index.append(i+1)
-                  list_of_difference.append(difference.total_seconds())
+                breaking_point_index.append(i + 1)
+            # append the breaking points into the list.
+                list_of_difference.append(difference.total_seconds())
 
     print(list_of_difference)
     print(breaking_point_index)
-    return (breaking_point_index,list_of_difference)
-def interpolation(breaking_point_index,list_of_difference,df):
-    '''1
-        some data points are not continuous and they are not breaking points on timestamp.
-        the data of sensor is delayed sometimes.
-        so a function of interpolation is applied to detect whether difference of timestamp between 2 points
-        is 0.2 second（normally one second) In this case, I interpolate a new piece of data with 0.1s difference
-        between 2 points.
+    return (breaking_point_index, list_of_difference)
 
-        Args:
-        breaking_point_index (list): indices where breaking points locate
-        list_of_difference (list): time differences between consecutive points
-        df (pd.DataFrame): input dataframe with discontinuously timeseries
+def interpolation(df):
+    """
+    some data points are not continuous and they are not typical breaking points on timestamp.
+    some breaking points are caused by delay of signal.
+    so a function of interpolation is applied to detect whether difference of timestamp between 2 points
+    is 0.2 second (normally 0.1s) In this case, I interpolate a new piece of data with 0.1s difference
+    between 2 points.
 
-        Returns:
-        pd.DataFrame: Dataframe with interpolated rows added where needed.
-    '''
-    # create the number of points implementing interpolation
-    number_of_interpolation_point=0
-    list_of_interpolation_index=[]
+    Args:
+    df (pd.DataFrame): input dataframe with discontinuously timeseries
+
+    Returns:
+    pd.DataFrame: Dataframe with interpolated rows added where needed.
+    """
+    breaking_point_index, list_of_difference = breaking_point_detection(df)
+    list_of_interpolation_index = [0]
+    list_of_dataframe = []
+    # Determine indices for interpolation.
     for i in range(len(list_of_difference)):
-
         if list_of_difference[i] == 0.2:
-            df1 = df.iloc[:(number_of_interpolation_point+breaking_point_index[i]),:]
-            df2 = df.iloc[(number_of_interpolation_point+breaking_point_index[i]):,:]
-            # create a new row to make time_stamp continuously. And fill with nan for following interpolation
-            new_row = pd.DataFrame({'accX': [math.nan], 'accY':[math.nan], 'accZ':[math.nan], 'gyroX':[math.nan],
-            'gyroY':[math.nan], 'gyroZ':[math.nan],'timestamp':[math.nan],'Activity':[math.nan],
-            'timestamp_datetype':[df.loc[breaking_point_index[i]+number_of_interpolation_point,'timestamp_datetype']
-                                  -timedelta(seconds=0.1)]})
-            new_row['timestamp'] = new_row['timestamp_datetype'].dt.strftime('%M:%S.%f')
-            df = pd.concat([df1, new_row, df2]).reset_index(drop=True)
-            number_of_interpolation_point += 1
-            list_of_interpolation_index.append(breaking_point_index[i]+number_of_interpolation_point)
+            list_of_interpolation_index.append(breaking_point_index[i])
+    list_of_interpolation_index.append(df.shape[0])
+    # Build the list of DataFrames with interpolated rows.
+    for i in range(len(list_of_interpolation_index) - 1):
+        start = list_of_interpolation_index[i]
+        end = list_of_interpolation_index[i + 1]
+        list_of_dataframe.append(df.loc[start:end - 1])
+        if end != df.shape[0]:  # Avoid adding a new row after the last point
+            new_row = pd.DataFrame({
+                "accX": [math.nan], "accY": [math.nan], "accZ": [math.nan],
+                "gyroX": [math.nan], "gyroY": [math.nan], "gyroZ": [math.nan],
+                "timestamp": [math.nan], "Activity": [math.nan],
+                "timestamp_datetype": [df.loc[end, "timestamp_datetype"] - timedelta(seconds=0.1)]
+            })
+            list_of_dataframe.append(new_row)
+    new_df = pd.concat(list_of_dataframe).reset_index(drop=True)
 
-        elif ( list_of_difference[i] == 0.4):
-            print(breaking_point_index[i])
-            df1 = df.iloc[:(number_of_interpolation_point+breaking_point_index[i]),:]
-            df2 = df.iloc[(number_of_interpolation_point+breaking_point_index[i]):,:]
-            number_of_new_rows = 4
-            for j in range(number_of_new_rows):
-                new_row = pd.DataFrame({'accX': [math.nan], 'accY': [math.nan], 'accZ': [math.nan], 'gyroX': [math.nan],
-                'gyroY': [math.nan], 'gyroZ': [math.nan], 'timestamp': [math.nan],'Activity': [math.nan],
-                'timestamp_datetype': [df.loc[breaking_point_index[i-1] + number_of_interpolation_point,
-                'timestamp_datetype'] + (j+1)*timedelta(seconds=0.1)]})
-                new_row['timestamp'] = new_row['timestamp_datetype'].dt.strftime('%M:%S.%f')
-                df1=df1.append(new_row,ignore_index=True)
-                number_of_interpolation_point += 1
-                list_of_interpolation_index.append(breaking_point_index[i] + number_of_interpolation_point)
-                df = pd.concat([df1,df2]).reset_index(drop=True)
-    for col in ['accX', 'accY', 'accZ', 'gyroX', 'gyroY', 'gyroZ','Activity']:
-        df[col]=df[col].interpolate(method='pchip')
-    print('the number of data points interpolated :'+str(number_of_interpolation_point))
-    print('the index of data points added')
-    print(list_of_interpolation_index)
+    for col in ["accX", "accY", "accZ", "gyroX", "gyroY", "gyroZ", "Activity"]:
+        new_df[col] = new_df[col].interpolate(method="linear")
+
+    return new_df
+
+
+def timestamp_delete(breaking_point_index, list_of_difference, df):
+    number_of_delete_point = 0
+    list_of_index = []
+    for i in range(len(list_of_difference)):
+        if list_of_difference[i] < 0.1 and list_of_difference[i] >= -0.1:
+            list_of_index.append(breaking_point_index[i])
+            df = df.drop(index=breaking_point_index[i])
+            number_of_delete_point += 1
+    print(
+        "the number of repetitive data points deleted :" + str(number_of_delete_point)
+    )
+    print("the index of data points deleted")
+    print(list_of_index)
     df.reset_index(drop=True, inplace=True)
     return df
 
 
-def timestamp_delete(breaking_point_index,list_of_difference,df):
-    number_of_delete_point = 0
-    list_of_index=[]
-    for i in range(len(list_of_difference)):
-        if (list_of_difference[i]<0.1 and list_of_difference[i] >=-0.1):
-            list_of_index.append(breaking_point_index[i])
-            df=df.drop(index=breaking_point_index[i])
-            number_of_delete_point+=1
-    print('the number of repetitive data points deleted :' + str(number_of_delete_point))
-    print('the index of data points deleted')
-    print(list_of_index)
-    df.reset_index(drop=True, inplace=True)
-    return(df)
 def outlier_disposal(df):
-    window_size = 30
+    window_size = 5
     threshold = 3
     outliers = {}
     for column in df.columns:
-        if column not in ['Activity', 'timestamp', 'timestamp_datetype']:
+        if column not in ["Activity", "timestamp", "timestamp_datetype"]:
             rolling_mean = df[column].rolling(window=window_size, min_periods=0).mean()
-            rolling_standard_deviation = df[column].rolling(window=window_size, min_periods=0).std()
-            upper_bound = df[column] < (rolling_mean - threshold * rolling_standard_deviation)
-            lower_bound = df[column] > (rolling_mean + threshold * rolling_standard_deviation)
-            outlier_condition = (upper_bound | lower_bound)
+            rolling_standard_deviation = (
+                df[column].rolling(window=window_size, min_periods=0).std()
+            )
+            upper_bound = df[column] < (
+                rolling_mean - threshold * rolling_standard_deviation
+            )
+            lower_bound = df[column] > (
+                rolling_mean + threshold * rolling_standard_deviation
+            )
+            outlier_condition = upper_bound | lower_bound
             outliers[column] = df[outlier_condition]
 
     print(outliers)
-def different_activity_frame_division(df):
-     df_0 = df[df['Activity'] == 0]
-     df_1 = df[df['Activity'] == 1]
-     return df_0, df_1
 
-def statics_hisdiagram(df):
+
+def different_activity_frame_division(df):
+    df_0 = df[df["Activity"] == 0]
+    df_1 = df[df["Activity"] == 1]
+    return df_0, df_1
+
+
+def statics_histgram(df):
     plt.figure()
     for column in df:
-        if column not in ['Activity', 'timestamp', 'timestamp_datetype']:
+        if column not in ["Activity", "timestamp", "timestamp_datetype"]:
             df[column].hist(bins=15, width=2)
             plt.title(column)
-            if column in ['accX','accY','accZ']:
-                 plt.xlabel('m/s^(-2)')
+            if column in ["accX", "accY", "accZ"]:
+                plt.xlabel("m/s^(-2)")
             else:
-                plt.xlabel('radian per second')
-            plt.ylabel('Frequency')
+                plt.xlabel("radian per second")
+            plt.ylabel("Frequency")
             plt.show()
 
+
 def statistics_boxplot(df):
-    df.boxplot(column=['accX', 'accY', 'accZ','gyroX','gyroY','gyroY'])
+    df.boxplot(column=["accX", "accY", "accZ", "gyroX", "gyroY", "gyroY"])
     plt.show()
+
 
 def smoothing(df):
     for column in df:
-        if column not in ['Activity', 'timestamp', 'timestamp_datetype']:
-            df[column]=df[column].ewm(alpha =0.5).mean()
-    return(df)
+        if column not in ["Activity", "timestamp", "timestamp_datetype"]:
+            df.loc[:, column] = df[column].ewm(alpha=0.7).mean()
+    return df
+
 
 def smoothing_all(df):
     list_of_breaking_points, list_of_difference = breaking_point_detection(df)
-    if
+    list_of_breaking_points.append(df.shape[0])
+    list_of_breaking_points.sort()
+    list_of_dataframe = []
+    start = 0
+    for breaking_point in list_of_breaking_points:
+        if breaking_point != df.shape[0]:
+            new_df = df.loc[start : (breaking_point - 1), :]
+            new_df = smoothing(new_df)
+            list_of_dataframe.append(new_df)
+            start = breaking_point
+    df_after_smoothing = pd.concat(list_of_dataframe)
+    return df_after_smoothing
 
-if __name__ == '__main__':
 
-    df_raw = pd.read_csv('dataset.csv')
+def data_preprocessing():
+
+    df_raw = pd.read_csv("dataset.csv")
+    df_after_null_preprocess = null_data_disposal(df_raw)
     print_general_statistics(df_raw)
     print_general_statistics(df_raw)
     df_after_null_preprocess = null_data_disposal(df_raw)
     df_after_time_stamp_convert = time_stamp_format_convert(df_after_null_preprocess)
     print_general_statistics(df_after_time_stamp_convert)
-    print(df_after_time_stamp_convert.loc[20928, 'timestamp'])
-    list_of_breaking_points,list_of_difference=breaking_point_detection(df_after_time_stamp_convert)
-    df_after_delete=timestamp_delete(list_of_breaking_points,list_of_difference,df_after_time_stamp_convert)
-    list_of_breaking_points, list_of_difference = breaking_point_detection(df_after_delete)
-    df_interpolation=interpolation(list_of_breaking_points,list_of_difference,df_after_delete)
-    list_of_breaking_points,list_of_difference=breaking_point_detection(df_interpolation)
-    df_interpolation.to_csv('output_file.csv', index=True)
-    df_activity_0,df_activity_1= different_activity_frame_division(df_interpolation)
+    print(df_after_time_stamp_convert.loc[20928, "timestamp"])
+    list_of_breaking_points, list_of_difference = breaking_point_detection(
+        df_after_time_stamp_convert
+    )
+    df_after_delete = timestamp_delete(
+        list_of_breaking_points, list_of_difference, df_after_time_stamp_convert
+    )
+    list_of_breaking_points, list_of_difference = breaking_point_detection(
+        df_after_delete
+    )
+    df_interpolation = interpolation(df_after_delete)
+    df_activity_0, df_activity_1 = different_activity_frame_division(df_interpolation)
     outlier_disposal(df_activity_0)
     outlier_disposal(df_activity_1)
-    statics_hisdiagram(df_activity_0)
-    statics_hisdiagram(df_activity_1)
+    statics_histgram(df_activity_0)
+    statics_histgram(df_activity_1)
     statistics_boxplot(df_activity_0)
     statistics_boxplot(df_activity_1)
+    a,b=breaking_point_detection(df_interpolation)
+    df_interpolation.to_csv("output_file.csv", index=True)
+
+data_preprocessing()
