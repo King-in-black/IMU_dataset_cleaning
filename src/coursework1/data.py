@@ -4,6 +4,7 @@ import warnings
 import matplotlib.pyplot as plt
 import math
 from datetime import timedelta
+import os
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
 
@@ -189,6 +190,18 @@ def timestamp_delete(df):
 
 
 def outlier_disposal(df):
+    '''
+    the function is used rolling methods with a window to detect the outlier. Because the data has a tendency
+    to increase or decrease, the static method to indicate outliers is pretty unsuitable.
+
+    Args:
+        df: dataframe used to detect outliers into dataframe
+
+    Returns:
+        outliers: a dataframe with outliers in the dataframe
+
+    '''
+    # set window_size and threshold
     window_size = 5
     threshold = 3
     outliers = {}
@@ -198,6 +211,7 @@ def outlier_disposal(df):
             rolling_standard_deviation = (
                 df[column].rolling(window=window_size, min_periods=0).std()
             )
+            # if a data point is higher or lower a mean with 3 s.d , it will be recognised as an outlier
             upper_bound = df[column] < (
                 rolling_mean - threshold * rolling_standard_deviation
             )
@@ -207,16 +221,37 @@ def outlier_disposal(df):
             outlier_condition = upper_bound | lower_bound
             outliers[column] = df[outlier_condition]
 
+    if outliers.empty():
+        print( 'there is no outliers')
     print(outliers)
+    return(outliers)
 
 
 def different_activity_frame_division(df):
+    '''
+    the function is used to divide dataframe according to number of Activity in the row of data.
+    Activity =0 is for one dataframe, and Activity =1 is for another dataframe.
+
+    Args:
+        df: the input dataframe not classified by Activity
+
+    Returns:
+        df_0:the input dataframe  classified by Activity =0
+        df_1:the input dataframe  classified by Activity =1
+    '''
     df_0 = df[df["Activity"] == 0]
     df_1 = df[df["Activity"] == 1]
     return df_0, df_1
 
-
 def statics_histgram(df):
+    '''
+
+    Args:
+        df:
+
+    Returns:
+
+    '''
     plt.figure()
     for column in df:
         if column not in ["Activity", "timestamp", "timestamp_datetype"]:
