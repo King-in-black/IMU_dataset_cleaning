@@ -133,12 +133,12 @@ def interpolation(df):
     breaking_point_index, list_of_difference = breaking_point_detection(df)
     list_of_interpolation_index = [0]
     list_of_dataframe = []
-    # Determine indices for interpolation.
+   #  Take the index into a list with 0.2s time difference
     for i in range(len(list_of_difference)):
         if list_of_difference[i] == 0.2:
             list_of_interpolation_index.append(breaking_point_index[i])
     list_of_interpolation_index.append(df.shape[0])
-    # Build the list of DataFrames with interpolated rows.
+    # Construct a list of dataframes with interpolated rows.
     for i in range(len(list_of_interpolation_index) - 1):
         start = list_of_interpolation_index[i]
         end = list_of_interpolation_index[i + 1]
@@ -150,18 +150,30 @@ def interpolation(df):
                 "timestamp": [math.nan], "Activity": [math.nan],
                 "timestamp_datetype": [df.loc[end, "timestamp_datetype"] - timedelta(seconds=0.1)]
             })
+            # append dataframe into a list
             list_of_dataframe.append(new_row)
+    # Combine all the dataframe and new rows into a new dataframe
     new_df = pd.concat(list_of_dataframe).reset_index(drop=True)
-
+    # Interpolate the data points with piecewise cubic hermite interpolating polynomial method
     for col in ["accX", "accY", "accZ", "gyroX", "gyroY", "gyroZ", "Activity"]:
-        new_df[col] = new_df[col].interpolate(method="linear")
-
+        new_df[col] = new_df[col].interpolate(method="pchip")
     return new_df
 
 
-def timestamp_delete(breaking_point_index, list_of_difference, df):
+def timestamp_delete(df):
+    '''
+    The function is used to delete the repetitive timestamp and inverse  data in the time series in the dataframe
+    Args:
+        df: the dataframe prepare to delete the repetitive timestamp
+
+    Returns:
+        df_new: the dataframe after deletion of timestamp
+
+    '''
+    breaking_point_index, list_of_difference = breaking_point_detection(df)
     number_of_delete_point = 0
     list_of_index = []
+    # drop the row in  the same or wrong order of time seires
     for i in range(len(list_of_difference)):
         if list_of_difference[i] < 0.1 and list_of_difference[i] >= -0.1:
             list_of_index.append(breaking_point_index[i])
@@ -265,7 +277,8 @@ def data_preprocessing():
     list_of_breaking_points, list_of_difference = breaking_point_detection(
         df_after_delete
     )
-    df_interpolation = interpolation(df_after_delete)
+    df_interpolation = interpolation_2(df_after_delete)
+
     df_activity_0, df_activity_1 = different_activity_frame_division(df_interpolation)
     outlier_disposal(df_activity_0)
     outlier_disposal(df_activity_1)
