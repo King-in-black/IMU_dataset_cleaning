@@ -323,15 +323,15 @@ def smoothing_all(df):
     list_of_dataframe = []
     start = 0
     for breaking_point in list_of_breaking_points:
-        if breaking_point != df.shape[0]:
-            # create every new dataframe according to breaking points
-            new_df = df.loc[start : (breaking_point - 1), :]
-            new_df = smoothing(new_df)
-            # add new dataframe into a list
-            list_of_dataframe.append(new_df)
-            start = breaking_point
+        # create every new dataframe according to breaking points
+        new_df = df.loc[start : (breaking_point - 1), :]
+        new_df = smoothing(new_df)
+        # add new dataframe into a list
+        list_of_dataframe.append(new_df)
+        start = breaking_point
     df_after_smoothing = pd.concat(list_of_dataframe)
     return df_after_smoothing
+
 
 
 # read dataframe from csv
@@ -352,11 +352,14 @@ df_after_delete = timestamp_delete(df_after_time_stamp_convert)
 df_interpolation = interpolation(df_after_delete)
 # divide dataframe according to Activity
 df_activity_0, df_activity_1 = different_activity_frame_division(df_interpolation)
+# detect the outliers
 outlier_detection(df_activity_0)
 outlier_detection(df_activity_1)
+# draw the figures
 statics_histogram(df_activity_0)
 statics_histogram(df_activity_1)
 statistics_boxplot(df_activity_0)
 statistics_boxplot(df_activity_1)
- #df_final = smoothing_all(df_interpolation)
-df_interpolation.to_csv("output_file.csv", index=True)
+# smo
+df_final = smoothing_all(df_interpolation)
+df_final.to_csv("output_file.csv", index=True)
