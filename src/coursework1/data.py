@@ -34,7 +34,7 @@ def print_general_statistics(df):
     print(df.describe())  # Add your code inside the brackets
 
 
-def null_data_disposal(df):
+def null_data_detection(df):
     """if the dataset has null values, the function will delete the row in dataframe with
     null value. The function will return the dataframe without null.
 
@@ -189,10 +189,12 @@ def timestamp_delete(df):
     return df
 
 
-def outlier_disposal(df):
+def outlier_detection(df,window_size=5 , threshold=3):
     '''
-    the function is used rolling methods with a window to detect the outlier. Because the data has a tendency
-    to increase or decrease, the static method to indicate outliers is pretty unsuitable.
+    the function is used rolling methods with a window to detect the outlier.Not all outliers in a continues
+    timeseries are mistakes. Because the data has a tendency to increase or decrease,
+    the static method to indicate outliers is pretty unsuitable. If we detect outlier,
+    we do not choose to replace it directly. The outliers will be treated by replacing by upper bound and lower bound.
 
     Args:
         df: dataframe used to detect outliers into dataframe
@@ -202,8 +204,7 @@ def outlier_disposal(df):
 
     '''
     # set window_size and threshold
-    window_size = 5
-    threshold = 3
+
     outliers = {}
     for column in df.columns:
         if column not in ["Activity", "timestamp", "timestamp_datetype"]:
@@ -221,7 +222,7 @@ def outlier_disposal(df):
             outlier_condition = upper_bound | lower_bound
             outliers[column] = df[outlier_condition]
 
-    if outliers.empty():
+    if len(outliers) == 0:
         print( 'there is no outliers')
     print(outliers)
     return(outliers)
@@ -243,17 +244,20 @@ def different_activity_frame_division(df):
     df_1 = df[df["Activity"] == 1]
     return df_0, df_1
 
-def statics_histgram(df):
+def statics_histogram(df):
     '''
+    Drew the histogram for acceleration and angular velocity in 3D space
+    And Save figures into current folder
 
     Args:
-        df:
+        df: the dataframe used to draw histogram
 
     Returns:
 
     '''
     plt.figure()
     for column in df:
+        # the non-float variable will not be drawn here
         if column not in ["Activity", "timestamp", "timestamp_datetype"]:
             df[column].hist(bins=15, width=2)
             plt.title(column)
@@ -263,65 +267,96 @@ def statics_histgram(df):
                 plt.xlabel("radian per second")
             plt.ylabel("Frequency")
             plt.show()
+            plt.savefig(column+'histogram')
 
 
 def statistics_boxplot(df):
-    df.boxplot(column=["accX", "accY", "accZ", "gyroX", "gyroY", "gyroY"])
-    plt.show()
+    '''
+     Drew the boxplot for acceleration and angular velocity in 3D space in the dataframe
+     And Save figures into current folder
 
+     Args:
+         df: the dataframe used to draw boxplot
+
+     Returns:
+
+     '''
+    df.boxplot(column=["accX", "accY", "accZ", "gyroX", "gyroY", "gyroY"], vert=False)
+    plt.xlabel('Values')
+    plt.ylabel('Data Category')
+    plt.show()
+    plt.savefig('box plot')
 
 def smoothing(df):
+    '''
+    Here is a function to provide the smoothing method (Exponential Weighted functions) on the sensor data in data frame
+    Args:
+        df: the dataframe before the smoothing
+
+    Returns:
+        df: the dataframe after the smoothing
+    '''
     for column in df:
         if column not in ["Activity", "timestamp", "timestamp_datetype"]:
+            # apply Exponential Weighted functions
             df.loc[:, column] = df[column].ewm(alpha=0.7).mean()
     return df
 
 
 def smoothing_all(df):
+    '''
+    I would like the divide the dataframe according to the breaking points because only dataframe within in a continuous
+    time series has a continuous tendency.
+    Therefore, I need to divide dataframe according to their breaking points first then apply smoothing for every
+    sub dataframe.
+    Args:
+        df: the dataframe before smoothing
+
+    Returns:
+        df_after_smoothing: the dataframe after smoothing
+    '''
+    # check the breaking points of current dataframe.
     list_of_breaking_points, list_of_difference = breaking_point_detection(df)
+    # Add the end point of dataframe
     list_of_breaking_points.append(df.shape[0])
     list_of_breaking_points.sort()
     list_of_dataframe = []
     start = 0
     for breaking_point in list_of_breaking_points:
         if breaking_point != df.shape[0]:
+            # create every new dataframe according to breaking points
             new_df = df.loc[start : (breaking_point - 1), :]
             new_df = smoothing(new_df)
+            # add new dataframe into a list
             list_of_dataframe.append(new_df)
             start = breaking_point
     df_after_smoothing = pd.concat(list_of_dataframe)
     return df_after_smoothing
 
 
-def data_preprocessing():
-
-    df_raw = pd.read_csv("dataset.csv")
-    df_after_null_preprocess = null_data_disposal(df_raw)
-    print_general_statistics(df_raw)
-    print_general_statistics(df_raw)
-    df_after_null_preprocess = null_data_disposal(df_raw)
-    df_after_time_stamp_convert = time_stamp_format_convert(df_after_null_preprocess)
-    print_general_statistics(df_after_time_stamp_convert)
-    print(df_after_time_stamp_convert.loc[20928, "timestamp"])
-    list_of_breaking_points, list_of_difference = breaking_point_detection(
-        df_after_time_stamp_convert
-    )
-    df_after_delete = timestamp_delete(
-        list_of_breaking_points, list_of_difference, df_after_time_stamp_convert
-    )
-    list_of_breaking_points, list_of_difference = breaking_point_detection(
-        df_after_delete
-    )
-    df_interpolation = interpolation_2(df_after_delete)
-
-    df_activity_0, df_activity_1 = different_activity_frame_division(df_interpolation)
-    outlier_disposal(df_activity_0)
-    outlier_disposal(df_activity_1)
-    statics_histgram(df_activity_0)
-    statics_histgram(df_activity_1)
-    statistics_boxplot(df_activity_0)
-    statistics_boxplot(df_activity_1)
-    a,b=breaking_point_detection(df_interpolation)
-    df_interpolation.to_csv("output_file.csv", index=True)
-
-data_preprocessing()
+# read dataframe from csv
+df_raw = pd.read_csv("dataset.csv")
+# detect whether there is null data from the dataframe
+# print the general statistics
+print_general_statistics(df_raw)
+# detect null values
+df_after_null_preprocess = null_data_detection(df_raw)
+# convert timestamp to datetype and allow the after calculation
+df_after_time_stamp_convert = time_stamp_format_convert(df_after_null_preprocess)
+print_general_statistics(df_after_time_stamp_convert)
+#detect whether index =20928 has varied or not
+print(df_after_time_stamp_convert.loc[20928, "timestamp"])
+# delete same timestamp in the dataframe
+df_after_delete = timestamp_delete(df_after_time_stamp_convert)
+# interpolate lost data between the datapoints
+df_interpolation = interpolation(df_after_delete)
+# divide dataframe according to Activity
+df_activity_0, df_activity_1 = different_activity_frame_division(df_interpolation)
+outlier_detection(df_activity_0)
+outlier_detection(df_activity_1)
+statics_histogram(df_activity_0)
+statics_histogram(df_activity_1)
+statistics_boxplot(df_activity_0)
+statistics_boxplot(df_activity_1)
+ #df_final = smoothing_all(df_interpolation)
+df_interpolation.to_csv("output_file.csv", index=True)
