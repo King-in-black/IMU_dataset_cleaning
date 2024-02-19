@@ -1,0 +1,278 @@
+\documentclass[12pt]{project_report}
+\usepackage{amsmath,amsthm,graphicx}
+
+\title{Feature level fused multimodal fall detection system}
+\author{Ziqi.\,Zhang. Author}
+\date{16 March 2024}
+\supervisor{Dr.\,Nasrollahy Shiraz, Arsam}
+%\advisor{My advisor}
+\aiuse{{\bf If you have not used generative AI make sure that {\tt\bf\textbackslash aiuse} is empty. Only edit and include text inside {\tt\bf\textbackslash aiuse} if you have used generative AI.}
+
+I acknowledge the use of name and version of generative AI system [e.g.\ Chat-GPT-3.5]  (Publisher [e.g.\ OpenAI], URL of the AI system [e.g.\ \\https://chat.openai.com]) to brief description of context in which AI tool was used [e.g. to summarise my initial notes and proofread my final draft].}
+\wordcount{4401}
+
+\begin{document}
+
+\coverpage
+\declaration
+\maketitle
+\abstract{This document serves as a template for the final report as well as an introduction to \LaTeX. This template is very similar to the one used for the interim report. Please remember to include the word count and write an abstract. The abstract should include your main aim of the project and your most important finding(s). Make sure you are including quantitative information if you can, e.g.\ the ML algorithm is 85\,\% accurate or the implemented amplifier has a gain of 25\,dB. }
+
+\tableofcontents
+\section{Usage}
+This document provides a brief overview of how to use the 3\textsuperscript{rd} year project final report \LaTeX\ template. It assumes that you have a basic understanding of \LaTeX.
+
+This template should work ``out of the box'' together with any standard \LaTeX\ distribution, including MikTeX and Overleaf. The first time you use this template with MikTeX it might ask you to download some additional packages. This is normal and you should add those packages to your \LaTeX\ distribution. In the ``preamble'' of the document, i.e.\ before \verb!\begin{document}! you need to write
+\begin{verbatim}
+\documentclass{project_report}
+\usepackage{amsmath,amsthm,graphicx}
+
+\title{Project title}
+\author{A.\,N. Author}
+\date{14 December 2022}
+\supervisor{My Professor}
+%\advisor{My advisor}
+\wordcount{the number of words of your report}
+\end{verbatim}
+which tells \LaTeX\ to typeset the document to use the definitions in the \verb!project_report! class file. You need to define values for \verb!title!, \verb!author!, \verb!date!, \verb!supervisor!, \verb!advisor! and \verb!wordcount!.
+
+After the preamble you need to write
+\begin{verbatim}
+\begin{document}
+
+\coverpage
+\declaration
+\maketitle
+\abstract{Put your abstract here.}
+
+\tableofcontents
+\section{The first section}
+Write your report here.
+
+Put your references at the end of your
+report using the ``IEEE'' style
+(see alternative method later in the text)
+\bibliography{example-references}
+\bibliographystyle{IEEEtr}
+
+And finish with the appendices:
+\appendix
+
+\section{The first appendix}
+
+\end{document}
+\end{verbatim}
+
+Let's start with some text. \LaTeX\ formats the text for you, so you can just continue typing. This allows you to focus on the text or content.
+
+If you would like to start a new paragraph, like this one, you need to enter an empty line. To force a\\ newline you can use \verb!\\!.
+
+The typesetting engine will determining where tables and figures should sit.
+
+\LaTeX\ provides environments for producing lists. We can create numbered lists like
+\begin{enumerate}
+	\item the first item,
+	\item the second item,
+	\item the third item,
+\end{enumerate}
+by using the \verb!enumerate! environment.
+Similarly, we can create a bullet point list like
+\begin{itemize}
+	\item the first item,
+	\item the second item,
+	\item the third item,
+\end{itemize}
+by using the \verb!itemize! environment.
+
+After a while, we'll have finished the introduction and will want to move onto the next section.
+This can be achieved by using the \verb!\section! command.
+
+\section{A new section}
+\LaTeX\ takes care of the formating and numbering of the section titles. We can add subsections by using the \verb!\subsection! command.
+
+\subsection{On mathematics and tables}
+Do not use too many and too short subsections. You can add another level of \verb!\subsubsection!, but only if this really helps your report structure. 
+\subsubsection{Mathematical equations}
+We can now write some mathematical equations, first as a display equation, using the \verb!equation! environment:
+\begin{equation}
+	A = \frac{\partial\theta}{\partial t} + \mbox{\boldmath $u$\unboldmath} \cdot \nabla\theta = 0.
+\end{equation}
+We can also write mathematics inline, like \( x^2 + y^2 = z^2 \).
+If the equation should not be numbered, we should use the \verb!equation*! environment.
+This naming scheme applies to many environments, such that the version suffixed with an asterisk has no number. Please remember that variables are written in italics, e.g. \(T\), but units are typeset using upright characters, e.g.\ \(T=2\,^\circ{\rm C}\) not  \(T=2\,^\circ C\). This is especially import when dealing with voltages such as $V_{\rm out}=2.7\,{\rm V}$.
+
+\subsubsection{Tables}
+Let's have a look at some tables. As an example, we'll define a table just after this line in the \LaTeX\ code, although it won't necessarily appear just below in the typeset PDF.
+\begin{table}[h]
+	\centering
+	\caption{Table of repeat length of longer allele by age of onset class.}
+	\begin{tabular}{@{\vrule height 10.5pt depth4pt  width0pt}lccccc}
+	& \multicolumn5c{Repeat length} \\
+	\cline{2-6}
+	Age of onset & \it n & Mean & SD & Range & Median \\
+	/ years  & & & & & \\
+	\hline
+	Juvenile, 2–20 & 40 & 60.15 & 9.32 & 43–86 & 60 \\
+	Typical, 21–50 & 377 & 45.72 & 2.97 & 40–58 & 45 \\
+	Late, $>$ 50 & 26 & 41.85 & 1.56 & 40–45 & 42 \\
+	\hline
+	\label{table-label}
+	\end{tabular}
+\end{table}
+By giving the table a label, we can reference it automatically with \verb!Table \ref\{table-label}! to produce 
+Table \ref{table-label}.  Note that the \verb!table! envronment generates a ``floating'' table, i.e.\ one that will be positioned according to \LaTeX's typesetting rules. The actual table is defined within the \verb!tabular! environment. A basic table is generated as follows:
+\begin{verbatim}
+\begin{tabular}{lcc}
+A left aligned column & Two center aligned columns & 5\\
+The next line & 7.5 & 3.6\\
+\hline
+\multicolumn{2}{c}{An entry spanning two columns} & \\
+\hline
+\end{tabular}
+\end{verbatim}
+\begin{tabular}{lcc}
+A left aligned column & Two center aligned columns & 5\\
+The next line & 7.5 & 3.6\\
+\hline
+\multicolumn{2}{c}{An entry spanning two columns} & \\
+\hline
+\end{tabular}
+
+\section{On figures}
+We can use figures in a similar way.
+\begin{figure}[b]
+	\includegraphics[width=8.7cm]{example-figure}
+	\caption{
+		LKB1 phosphorylates Thr-172 of AMPK$\alpha$ \textit{in vitro} and activates its kinase activity. Make sure that the font sizes in the figures are large enough to be legible.
+	}
+	\label{figure-label}
+\end{figure}
+By giving the figure a label, we can reference it automatically with \verb!Figure \ref{figure-label}! to produce 
+Figure \ref{figure-label}. You can force figures into certain places using the \verb![t]! (top of the page), \verb![b]! (bottom of the page) and \verb![h]! (``here'') options e.g.\ \verb!\begin{figure}[b]!. Moving the figure to a slightly different position in the \LaTeX\ code often helps to get it into the right space in the PDF output. Sometimes you might want to make a figure smaller to fit into the desired space.
+
+\begin{figure}[b]
+	\begin{center}
+	\includegraphics[width=11.4cm]{example-figure}
+	\caption{
+		LKB1 phosphorylates Thr-172 of AMPK$\alpha$ \textit{in vitro}
+		and activates its kinase activity. This figure has been centred using the \texttt{center} environment.
+	}
+	\label{example-figure} 
+	\end{center}
+\end{figure}
+
+\section{On references}
+There are two principal ways of producing references in \LaTeX, either incorporating the references within the \LaTeX\ code itself or creating a bibliography file which then needs to be processed with Bib\TeX. The first method is useful for short documents, like a paper or report. The second is more suited for a thesis.
+
+\subsection{Simple method}
+The simple method looks like this:\footnote{The \texttt{99} indicates that you expect up to 99 citations.}
+\begin{verbatim}
+\begin{thebibliography}{99}
+
+\bibitem{kadison1959} Kadison, R. V. and
+	Singer, I. M. {\em "Extensions of pure states"},
+	Amer.\ J. Math. {\bf 81}, pp. 383--400 (19	59)
+
+\bibitem{anderson1981}  Anderson, J. 
+	{\em "A conjecture concerning the pure states
+	of $B(H)$ and a related theorem"}, Topics in
+	Modern Operator Theory, pp. 27--43 (1981)
+
+\bibitem{anderson1979} Anderson, J. 
+	{\em "Extreme points in sets of positive linear
+	maps on $B(H)$"}, J. Funct. Anal. {\bf 31},
+	pp. 195--217 (1979)
+
+\end{thebibliography}
+\end{verbatim}
+You would put the above at the end of your text and before the appendices. You can cite these references with the \verb!\cite! command, e.g.\ \verb!\cite{kadison1959}! will produce \cite{kadison1959}. Note that the formating of the reference itself is done in the \LaTeX\ file. You need to run \LaTeX\ twice for the references to appear properly in the final document.
+
+\subsection{Method involving Bib\TeX}
+For this method all references are put into a \verb!.bib! file, e.g.\ \verb!example.bib! which could look like this:
+\begin{verbatim}
+@article{kadison1959,
+Author = {Kadison, R. V. and Singer, I. M.},
+Date-Modified = {2014-06-30 18:43:47 +0100},
+Journal = {Amer. J. Math.},
+Pages = {383-400},
+Title = {Extensions of pure states},
+Volume = {81},
+Year = {1959}}
+\end{verbatim}
+\pagebreak
+\begin{verbatim}
+@article{anderson1981,
+Author = {Anderson, J.},
+Date-Modified = {2014-06-30 18:39:55 +0100},
+Journal = {Topics in Modern Operator Theory},
+Pages = {27-43},
+Title = {A conjecture concerning the pure
+states of $B(H)$ and a related theorem},
+Year = {1981}}
+
+@article{anderson1979,
+Author = {Anderson, J.},
+Date-Modified = {2014-06-30 18:39:40 +0100},
+Journal = {J. Funct. Anal.},
+Pages = {195-217},
+Title = {Extreme points in sets of positive
+linear maps on $B(H)$},
+Volume = {31},
+Year = {1979}}
+\end{verbatim}
+
+The \verb!.bib! file allows many  types of references, e.g.\ \verb!article!, \verb!book!, \verb!conference! and \verb!phdthesis!, which each have different compulsory and optional fields. To tell \LaTeX\ where to find this bibliography file and where to place the bibliography in the final text we use the \verb!\bibliography! command. E.g.\ if we have saved the references in \verb!example-references.bib! then
+\begin{verbatim}
+\bibliography{example-references}
+\bibliographystyle{IEEEtr}
+\end{verbatim}
+will place the reference at this position of the text using the IEEE referencing style. Printing the bibliography in the final output requires several steps. Programmes like TeXworks (part of MikTeX) can carry these out automatically but you can also execute them step by step manually, e.g.\ from a Linux command line. The process is summarised as follows:
+
+\begin{enumerate}
+	\item{run \LaTeX\ on the \verb!.tex! file as usual\\this will place the cited references in an \verb!.aux! file}
+	\item{run Bib\TeX\ on the \verb!.aux! file to transfer the details of the cited references into a \verb!.bbl! file}
+	\item{run \LaTeX\ {\em twice} again to make sure the references appear properly in the final document}
+\end{enumerate}
+Like before citations are added with the \verb!\cite! command, e.g.\ \cite{kadison1959} and \cite{anderson1979} by using \verb!\cite{kadison1959}! and \verb!\cite{anderson1979}!. Note that although \verb!anderson1981! is part of the \verb!.bib! file it does not appear in the references because it is not cited in this document. This is usefull if you have a long list of relevant references but only need to cite a few of them in a particular text. Also note that the style of the references is provided by the \verb!\bibliographystyle! command, i.e.\ the formatting happens automatically. Common referencing styles are \verb!nature!, \verb!apalike! or \verb!ieeetr!. Please use the latter in this report.
+
+%%
+% Uncomment the following lines to generate your bibiliography manually instead of using BibTeX
+%%
+
+%\begin{thebibliography}{99}
+%
+%\bibitem{kadison1959} Kadison, R. V. and
+%	Singer, I. M. {\em "Extensions of pure states"},
+%	Amer.\ J. Math. {\bf 81}, pp. 383--400 (19	59)
+%
+%\bibitem{anderson1981}  Anderson, J. 
+%	{\em "A conjecture concerning the pure states
+%	of $B(H)$ and a related theorem"}, Topics in
+%	Modern Operator Theory, pp. 27--43 (1981)
+%
+%\bibitem{anderson1979} Anderson, J. 
+%	{\em "Extreme points in sets of positive linear
+%	maps on $B(H)$"}, J. Funct. Anal. {\bf 31},
+%	pp. 195--217 (1979)
+%
+%\end{thebibliography}
+
+%%
+% Use of BibTeX with IEEE referencing style
+%%
+\bibliography{example-references}
+\bibliographystyle{IEEEtr} % IEEE style
+
+\section{Appendices}
+To add appendices, use the \verb!\appendix! command, followed by \verb!\section! commands for each appendix. Appendices start on a new page. To start every appendix on a new page use \verb!\newpage! in the \LaTeX\ code.
+
+\appendix
+
+\section{Some supplemental material}
+Note that this page does not appear in the page count in the declaration.
+\newpage
+
+\section{The second appendix}
+It doesn't contain much.
+
+\end{document}
