@@ -7,19 +7,20 @@
 \supervisor{Dr.\,Nasrollahy Shiraz, Arsam}
 %\advisor{My advisor}
 \aiuse{{\bf If you have not used generative AI make sure that {\tt\bf\textbackslash aiuse} is empty. Only edit and include text inside {\tt\bf\textbackslash aiuse} if you have used generative AI.}
-
 I acknowledge the use of name and version of generative AI system [Chat-GPT-3.5 and Chat-GPT-4.0]  (Publisher [OpenAI], URL of the AI system [\ https://chat.openai.com])\\\\ Chatgpt played an important role in my project and following researches. It provides new solutions and ideas when I meet difficulies. I used it to help me on coding and also on polishing my paper.}
-\wordcount{4401}
+\wordcount{4403}
 
 \begin{document}
 
 \coverpage
 \declaration
 \maketitle
-\abstract{This document serves as a template for the final report as well as an introduction to \LaTeX. This template is very similar to the one used for the interim report. Please remember to include the word count and write an abstract. The abstract should include your main aim of the project and your most important finding(s). Make sure you are including quantitative information if you can, e.g.\ the ML algorithm is 85\,\% accurate or the implemented amplifier has a gain of 25\,dB. }
+\abstract{In this investigation, a novel fall detection system was engineered, integrating feature-level data from both visual and accelerometer sensors. This fusion approach capitalized on human skeleton posture estimation to evaluate system performance, achieving an accuracy rate of [Insert specific percentage] on the UR dataset. When utilizing resultant acceleration data, the system attained an accuracy of [Insert specific percentage]. A synergistic feature fusion at the data integration layer further improved accuracy to [Insert specific percentage]. All variants employed a sophisticated CNN-based bidirectional LSTM architecture, yielding high precision in fall detection.
+
+A notable gap addressed in this study is the scant literature on compensating for the missing coordinates of keypoints in human posture detection algorithms. This research pioneers methods for keypoint recovery, crucial for refining the accuracy of fall incident determination. We have proposed and implemented several optimization techniques, including [List specific methods], to address this challenge. The [Name the specific method] method emerged superior, enhancing keypoint detection by [Insert specific percentage or metric], signifying a substantial leap forward in the domain of fall detection technology}
 
 \tableofcontents
-\section{Usage}
+\section{Introduction}
 This document provides a brief overview of how to use the 3\textsuperscript{rd} year project final report \LaTeX\ template. It assumes that you have a basic understanding of \LaTeX.
 
 This template should work ``out of the box'' together with any standard \LaTeX\ distribution, including MikTeX and Overleaf. The first time you use this template with MikTeX it might ask you to download some additional packages. This is normal and you should add those packages to your \LaTeX\ distribution. In the ``preamble'' of the document, i.e.\ before \verb!\begin{document}! you need to write
